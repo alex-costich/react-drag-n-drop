@@ -1,9 +1,9 @@
-import { lazy, Suspense } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
-import App from './App'
-import ErrorElement from './components/ErrorElement'
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter } from 'react-router-dom';
+import App from './App';
+import ErrorElement from './components/common/ErrorElement';
 
-const Home = lazy(() => import('./routes/Home'))
+const Home = lazy(() => import('./routes/Home'));
 
 export const router = createBrowserRouter([
 	{
@@ -26,4 +26,4 @@ export const router = createBrowserRouter([
 			},
 		],
 	},
-])
+]);

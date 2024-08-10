@@ -1,5 +1,11 @@
-const Home = () => {
-	return <div>Hello world!</div>
-}
+import UserList from '../components/UserList';
 
-export default Home
+const Home = () => {
+	return (
+		<div className='m-4'>
+			<UserList />
+		</div>
+	);
+};
+
+export default Home;

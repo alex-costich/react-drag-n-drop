@@ -3,7 +3,7 @@ const ErrorElement = () => {
 		<div>
 			<i>Sorry, there was an error</i>
 		</div>
-	)
-}
+	);
+};
 
-export default ErrorElement
+export default ErrorElement;
