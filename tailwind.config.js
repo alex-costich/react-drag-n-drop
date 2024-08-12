@@ -2,7 +2,11 @@
 export default {
 	content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
 	theme: {
-		extend: {},
+		extend: {
+			transitionProperty: {
+				'font-weight': 'font-weight',
+			},
+		},
 	},
 	plugins: ['prettier-plugin-tailwindcss'],
 };
