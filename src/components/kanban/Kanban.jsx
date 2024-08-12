@@ -62,8 +62,6 @@ const Kanban = () => {
 	const handleDragMove = e => {
 		const { active, over } = e;
 
-		console.log('Drag ended');
-
 		// Handle item sorting
 		if (
 			active.id.toString().includes('item') &&
@@ -72,7 +70,7 @@ const Kanban = () => {
 			over &&
 			active.id !== over.id
 		) {
-			// Find the active container and over Container
+			// Find the active and over containers
 			const activeContainer = findValueOfItems(active.id, 'item');
 			const overContainer = findValueOfItems(over.id, 'item');
 
@@ -210,10 +208,12 @@ const Kanban = () => {
 			);
 
 			// Find active and over item indexes
-			const activeItemIndex = containers.findIndex(
+			const activeItemIndex = activeContainer.findIndex(
 				item => item.id === active.id,
 			);
-			const overItemIndex = containers.findIndex(item => item.id === over.id);
+			const overItemIndex = overContainer.findIndex(
+				item => item.id === over.id,
+			);
 
 			// In the same container
 			if (activeContainerIndex === overContainerIndex) {
@@ -228,7 +228,7 @@ const Kanban = () => {
 			} else {
 				// In different container
 				let newItems = [...containers];
-				const [removedItem] = newItems(activeContainerIndex).items.splice(
+				const [removedItem] = newItems[activeContainerIndex].items.splice(
 					activeItemIndex,
 					1,
 				);
@@ -243,7 +243,7 @@ const Kanban = () => {
 			// Handling item drop into a container
 			if (
 				active.id.toString().includes('item') &&
-				over?.id.toString().includes('item') &&
+				over?.id.toString().includes('container') &&
 				active &&
 				over &&
 				active.id !== over.id

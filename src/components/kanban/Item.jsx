@@ -28,7 +28,7 @@ const Item = ({ id, title }) => {
 			style={style}
 			{...attributes}
 			ref={setNodeRef}
-			className={`px-2 py-4 bg-white shadow-md rounded-md w-full border border-transparent hover:border-cyan-300 ${isDragging && 'opacity-50'}`}
+			className={`px-2 py-4 bg-white shadow-md rounded-md w-full border border-transparent transition-opacity hover:border-cyan-300 ${isDragging && 'opacity-50'}`}
 		>
 			<div className='flex items-center justify-between'>
 				{title}
