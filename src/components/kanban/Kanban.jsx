@@ -35,6 +35,7 @@ const Kanban = () => {
 	);
 
 	const onAddContainer = () => {
+		console.log(onAddContainer);
 		if (!containerName) return;
 		const id = `container-${uuidv4()}`;
 		setContainers([
@@ -323,6 +324,7 @@ const Kanban = () => {
 			<Modal
 				name='container'
 				isShown={showAddContainerModal}
+				setIsShown={setShowAddContainerModal}
 				value={containerName}
 				onInputChange={setContainerName}
 				onButtonClick={onAddContainer}
@@ -330,22 +332,22 @@ const Kanban = () => {
 			<Modal
 				name='item'
 				isShown={showAddItemModal}
+				setIsShown={setShowAddItemModal}
 				value={itemName}
 				onInputChange={setItemName}
 				onButtonClick={onAddItem}
 			/>
-			<div className='mx-auto py-10 select-none'>
-				<div className='flex items-center justify-between gap-y-2'>
-					<h1 className='text-gray-800 text-3xl font-bold'>Kanban board</h1>
+			<div className='flex flex-col gap-y-2 max-w-[600px] bg-slate-300 p-2 rounded-sm mb-4 select-none'>
+				<div className='flex items-center w-full text-center justify-between bg-slate-300'>
 					<button
 						onClick={() => setShowAddContainerModal(true)}
-						className='bg-black px-2 py-1 font-semibold rounded-md text-white'
+						className='px-2 py-1 ml-auto hover:bg-cyan-700 font-semibold text-white transition bg-cyan-800 rounded-sm w-max shadow-md'
 					>
 						Add container
 					</button>
 				</div>
-				<div className='mt-10'>
-					<div className='grid grid-cols-3 gap-6'>
+				{containers.length > 0 && (
+					<div className='p-2 bg-slate-100 shadow-inner shadow-slate-400 grid grid-cols-3 gap-6'>
 						<DndContext
 							sensors={sensors}
 							collisionDetection={closestCorners}
@@ -365,7 +367,7 @@ const Kanban = () => {
 										}}
 									>
 										<SortableContext items={container.items.map(i => i.id)}>
-											<div className='flex items-start flex-col gap-y-4'>
+											<div className='flex items-start flex-col gap-y-1'>
 												{container.items.map(item => (
 													<Item key={item.id} id={item.id} title={item.title} />
 												))}
@@ -388,7 +390,7 @@ const Kanban = () => {
 							</DragOverlay>
 						</DndContext>
 					</div>
-				</div>
+				)}
 			</div>
 		</>
 	);

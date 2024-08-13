@@ -61,6 +61,7 @@ const UserList = () => {
 						type='text'
 						className='p-1 focus:outline-dashed outline-slate-500'
 						value={inputValue}
+						onKeyDown={e => e.key === 'Enter' && addUser()}
 						onChange={e => setInputValue(e.target.value)}
 					/>
 					<button
