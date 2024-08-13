@@ -21,8 +21,6 @@ const Item = ({ id, title }) => {
 		transform: CSS.Translate.toString(transform),
 	};
 
-	console.log(transform);
-
 	return (
 		<div
 			style={style}
@@ -34,7 +32,7 @@ const Item = ({ id, title }) => {
 				{title}
 				<button
 					{...listeners}
-					className='border p-2 text-xs rounded-mdy shadow-lg hover:shadow-xl'
+					className='p-2 text-xs rounded-mdy shadow-lg hover:shadow-xl'
 				>
 					Drag handle
 				</button>

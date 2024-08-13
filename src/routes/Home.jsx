@@ -2,7 +2,7 @@ import Kanban from '../components/kanban/Kanban';
 
 const Home = () => {
 	return (
-		<div className='m-4'>
+		<div className='p-4'>
 			<Kanban />
 		</div>
 	);

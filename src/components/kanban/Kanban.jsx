@@ -1,6 +1,7 @@
 import {
 	closestCorners,
 	DndContext,
+	DragOverlay,
 	KeyboardSensor,
 	PointerSensor,
 	useSensor,
@@ -12,28 +13,51 @@ import {
 	sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import Container from './Container';
 import Item from './Item';
 
 const Kanban = () => {
-	const [containers, setContainers] = useState([
-		{
-			id: `container-${3234}`,
-			title: 'Container 1',
-			items: [{ id: `item-${21421}`, title: 'Item 1' }],
-		},
-		{
-			id: `container-${123143}`,
-			title: 'Container 2',
-			items: [{ id: `item-${9432}`, title: 'Item 2' }],
-		},
-	]);
+	const [containers, setContainers] = useState([]);
 	const [activeId, setActiveId] = useState(undefined);
 	const [currentContainerId, setCurrentContainerId] = useState();
 	const [containerName, setContainerName] = useState('');
 	const [itemName, setItemName] = useState('');
 	const [showAddContainerModal, setShowAddContainerModal] = useState(false);
 	const [showAddItemModal, setShowAddItemModal] = useState(false);
+
+	const sensors = useSensors(
+		useSensor(PointerSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
+	);
+
+	const onAddContainer = () => {
+		if (!containerName) return;
+		const id = `container-${uuidv4()}`;
+		setContainers([
+			...containers,
+			{
+				id,
+				title: containerName,
+				items: [],
+			},
+		]);
+		setContainerName('');
+		setShowAddContainerModal(false);
+	};
+
+	const onAddItem = () => {
+		if (!itemName) return;
+		const id = `item-${uuidv4()}`;
+		const container = containers.find(item => item.id === currentContainerId);
+		if (!container) return;
+		container.items.push({ id, title: itemName });
+		setContainers([...containers]);
+		setItemName('');
+		setShowAddItemModal(false);
+	};
 
 	const findValueOfItems = (id, type) => {
 		if (type === 'container') {
@@ -46,12 +70,25 @@ const Kanban = () => {
 		}
 	};
 
-	const sensors = useSensors(
-		useSensor(PointerSensor),
-		useSensor(KeyboardSensor, {
-			coordinateGetter: sortableKeyboardCoordinates,
-		}),
-	);
+	const findItemTitle = id => {
+		const container = findValueOfItems(id, 'item');
+		if (!container) return '';
+		const item = container.items.find(item => item.id === id);
+		if (!item) return '';
+		return item.title;
+	};
+
+	const findContainerTitle = id => {
+		const container = containers.find(item => item.id === id);
+		if (!container) return '';
+		return container.title;
+	};
+
+	const findContainerItems = id => {
+		const container = containers.find(item => item.id === id);
+		if (!container) return [];
+		return container.items;
+	};
 
 	const handleDragStart = e => {
 		const { active } = e;
@@ -281,44 +318,104 @@ const Kanban = () => {
 	};
 
 	return (
-		<div className='mx-auto py-10 select-none'>
-			<div className='flex items-center justify-between gap-y-2'>
-				<h1 className='text-gray-800 text-3xl font-bold'>Kanban board</h1>
-			</div>
-			<div className='mt-10'>
-				<div className='grid grid-cols-3 gap-6'>
-					<DndContext
-						sensors={sensors}
-						collisionDetection={closestCorners}
-						onDragStart={handleDragStart}
-						onDragMove={handleDragMove}
-						onDragEnd={handleDragEnd}
+		<>
+			{showAddItemModal && (
+				<div className='fixed flex items-center justify-center backdrop-blur-sm -m-4 z-50 size-full'>
+					<div className='flex flex-col gap-y-2 items-center bg-cyan-950 shadow-md py-2 px-4 rounded-sm'>
+						<input
+							type='text'
+							placeholder='Write new item title...'
+							name='itemname'
+							value={itemName}
+							className='shadow-md text-slate-800 focus:outline-none bg-slate-200 rounded-sm py-1 px-2'
+							onChange={e => setItemName(e.target.value)}
+						/>
+						<button
+							className='bg-cyan-800 hover:bg-cyan-700 transition-colors font-semibold rounded-md px-2 py-1 text-white w-max'
+							onClick={onAddItem}
+						>
+							Add item
+						</button>
+					</div>
+				</div>
+			)}
+			{showAddContainerModal && (
+				<div className='fixed flex items-center justify-center backdrop-blur-sm -m-4 z-50 size-full'>
+					<div className='flex flex-col gap-y-2 items-center bg-cyan-950 shadow-md py-2 px-4 rounded-sm'>
+						<input
+							type='text'
+							placeholder='Write new container title...'
+							name='itemname'
+							value={containerName}
+							className='shadow-md text-slate-800 focus:outline-none bg-slate-200 rounded-sm py-1 px-2'
+							onChange={e => setContainerName(e.target.value)}
+						/>
+						<button
+							className='bg-cyan-800 hover:bg-cyan-700 transition-colors font-semibold rounded-md px-2 py-1 text-white w-max'
+							onClick={onAddContainer}
+						>
+							Add item
+						</button>
+					</div>
+				</div>
+			)}
+			<div className='mx-auto py-10 select-none'>
+				<div className='flex items-center justify-between gap-y-2'>
+					<h1 className='text-gray-800 text-3xl font-bold'>Kanban board</h1>
+					<button
+						onClick={() => setShowAddContainerModal(true)}
+						className='bg-black px-2 py-1 font-semibold rounded-md text-white'
 					>
-						<SortableContext items={containers.map(i => i.id)}>
-							{containers.map(container => (
-								<Container
-									key={container.id}
-									id={container.id}
-									title={container.title}
-									onAddItem={() => {
-										setShowAddItemModal(true);
-										setCurrentContainerId(container.id);
-									}}
-								>
-									<SortableContext items={container.items.map(i => i.id)}>
-										<div className='flex items-start flex-col gap-y-4'>
-											{container.items.map(item => (
-												<Item key={item.id} id={item.id} title={item.title} />
-											))}
-										</div>
-									</SortableContext>
-								</Container>
-							))}
-						</SortableContext>
-					</DndContext>
+						Add container
+					</button>
+				</div>
+				<div className='mt-10'>
+					<div className='grid grid-cols-3 gap-6'>
+						<DndContext
+							sensors={sensors}
+							collisionDetection={closestCorners}
+							onDragStart={handleDragStart}
+							onDragMove={handleDragMove}
+							onDragEnd={handleDragEnd}
+						>
+							<SortableContext items={containers.map(i => i.id)}>
+								{containers.map(container => (
+									<Container
+										key={container.id}
+										id={container.id}
+										title={container.title}
+										onAddItem={() => {
+											setShowAddItemModal(true);
+											setCurrentContainerId(container.id);
+										}}
+									>
+										<SortableContext items={container.items.map(i => i.id)}>
+											<div className='flex items-start flex-col gap-y-4'>
+												{container.items.map(item => (
+													<Item key={item.id} id={item.id} title={item.title} />
+												))}
+											</div>
+										</SortableContext>
+									</Container>
+								))}
+							</SortableContext>
+							<DragOverlay>
+								{activeId && activeId.toString().includes('item') && (
+									<Item id={activeId} title={findItemTitle(activeId)} />
+								)}
+								{activeId && activeId.toString().includes('container') && (
+									<Container id={activeId} title={findContainerTitle(activeId)}>
+										{findContainerItems(activeId).map(i => (
+											<Item key={i.id} id={i.id} title={i.title} />
+										))}
+									</Container>
+								)}
+							</DragOverlay>
+						</DndContext>
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 
